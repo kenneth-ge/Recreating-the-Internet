@@ -6,14 +6,14 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 
-public class Server extends Thread {
+public class DNSServer extends Thread {
 
     private DatagramSocket socket;
     private boolean running;
     private byte[] buf = new byte[256];
     private int serverPort = 5000;
 
-    public Server() {
+    public DNSServer() {
         try {
 			socket = new DatagramSocket(serverPort);
 		}catch(SocketException e) {
