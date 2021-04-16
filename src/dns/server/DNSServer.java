@@ -5,6 +5,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
+import java.util.HashMap;
 
 public class DNSServer extends Thread {
 
@@ -12,6 +13,8 @@ public class DNSServer extends Thread {
     private boolean running;
     private byte[] buf = new byte[256];
     private int serverPort = 5000;
+    
+    private HashMap<String,domainRecord> data;
 
     public DNSServer() {
         try {
