@@ -6,15 +6,14 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.util.Scanner;
 
+import util.Util;
+
 public class DNSClient {
 	
-	public static DatagramSocket socket;
-
 	public static void main(String[] args) throws IOException {
-		socket = new DatagramSocket();
-		
 		//convert int to two bytes
 		Scanner sc = new Scanner(System.in);
+		DNSClient client = new DNSClient(InetAddress.getByName("localhost"));
 		
 		while(true) {
 			int port = sc.nextInt();
@@ -31,16 +30,49 @@ public class DNSClient {
 		}
 	}
 	
-	public static void registerDomain(InetAddress ip, int port, String name) {
+	public DatagramSocket socket;
+	public InetAddress serverIP;
+	
+	public DNSClient(InetAddress serverIP) throws SocketException {
+		this.serverIP = serverIP;
+		
+		socket = new DatagramSocket();
+	}
+	
+	public void registerDomain(InetAddress ip, int port, String name) throws IOException {
 		if(name.length() > 255) {
 			throw new RuntimeException("Domain name too long");
 		}
 		
-		byte[] nameBytes = name.getBytes();
-		
 		byte operation = 0;
 		byte[] address = ip.getAddress();
+		byte[] portBytes = Util.intToTwoBytes(port);
+		byte[] nameBytes = name.getBytes();
 		
+		byte[] total = new byte[1 + 4 + 2 + nameBytes.length];
+		
+		total[0] = operation;
+		
+		for(int i = 1; i <= 4; i++) {
+			total[i] = address[i - 1];
+		}
+		
+		total[5] = portBytes[0];
+		total[6] = portBytes[1];
+		
+		for(int i = 0; i < nameBytes.length; i++) {
+			total[i + 7] = nameBytes[i];
+		}
+		
+		this.sendPacket(total);
+	}
+	
+	private void sendPacket(byte[] data) throws IOException {
+		DatagramPacket packet = new DatagramPacket(data, 0, data.length);
+		packet.setAddress(serverIP);
+		packet.setPort(5000);
+		
+		socket.send(packet);
 	}
 	
 }

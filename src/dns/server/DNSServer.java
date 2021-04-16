@@ -5,6 +5,9 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
+import java.net.UnknownHostException;
+
+import util.Util;
 
 public class DNSServer extends Thread {
 
@@ -49,5 +52,18 @@ public class DNSServer extends Thread {
 			}
         }
         socket.close();
+    }
+    
+    public void processRegistration(byte[] request) throws UnknownHostException {
+    	//ignore first byte
+    	byte operation = request[0];
+    	
+    	byte[] addressBytes = {request[1], request[2], request[3], request[4]};
+    	InetAddress addr = InetAddress.getByAddress(addressBytes);
+    	int port = Util.bytesToTwoInts(new byte[] {request[5], request[6]});
+    	
+    	String name = new String(request, 7, request.length - 7);
+    	
+    	//turn this into a java class
     }
 }

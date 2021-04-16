@@ -3,14 +3,14 @@ package util;
 public class Util {
 
 	//turns the port number into two bytes. Note that this truncates the int. 
-	public static byte[] portToBytes(int port) {
+	public static byte[] intToTwoBytes(int port) {
 		byte a = (byte) port;
 		byte b = (byte) (port >>> 8);
 		
 		return new byte[] {a, b};
 	}
 	
-	public static int bytesToPort(byte[] bytes) {
+	public static int bytesToTwoInts(byte[] bytes) {
 		int a = bytes[0];
 		int b = bytes[1];
 		
