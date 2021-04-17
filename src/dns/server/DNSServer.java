@@ -63,9 +63,10 @@ public class DNSServer extends Thread {
             InetAddress address = packet.getAddress();
             int port = packet.getPort();
             packet = new DatagramPacket(buf, buf.length, address, port);
-            String received = new String(packet.getData(), 0, packet.getLength());
+            byte[] requestData = packet.getData();
             
-            if(received.equals("end")) {
+            if(requestData[0] == 2) {
+            	// end
                 running = false;
                 try {
 					writeData();
@@ -73,8 +74,13 @@ public class DNSServer extends Thread {
 					System.out.println("I/O error: " + e.getMessage());
 				}
                 continue;
+            }else if(requestData[0] == 0) {
+            	try {
+					processRegistration(requestData);
+				} catch (UnknownHostException e) {
+					System.out.println("Unknown Host Error: " + e.getMessage());
+				}
             }
-            
             try {
 				socket.send(packet);
 			}catch(IOException e) {
