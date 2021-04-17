@@ -68,10 +68,6 @@ public class DNSServer extends Thread {
 			}catch(IOException e) {
 				System.out.println("I/O error: " + e.getMessage());
 			}
-            
-            InetAddress address = packet.getAddress();
-            int port = packet.getPort();
-            packet = new DatagramPacket(buf, buf.length, address, port);
             byte[] requestData = packet.getData();
             
             if(requestData[0] == 2) {
@@ -110,6 +106,7 @@ public class DNSServer extends Thread {
     	int port = Util.bytesToTwoInts(new byte[] {request[5], request[6]});
     	
     	System.out.println(port);
+    	System.out.println("packet length: " + end);
     	
     	String name = new String(request, 7, end - 7);
     	
