@@ -17,7 +17,7 @@ public class DomainRecord {
 	}
 	
 	public DomainRecord(String record) {
-		String[] infos = record.split("" + (char)(0));
+		String[] infos = record.split(";");
 		this.domain = infos[0];
 		this.port = Short.parseShort(infos[1]);
 		this.ip = Long.parseLong(infos[2]);
@@ -37,7 +37,7 @@ public class DomainRecord {
 	
 	@Override
 	public String toString() {
-		String res = domain + (char)(0) + port + (char)(0) + Util.longToStringIPV4(ip);
+		String res = domain + ";" + port + ";" + ip;
 		return res;
 	}
 	
