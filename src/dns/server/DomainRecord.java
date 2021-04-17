@@ -2,18 +2,18 @@ package dns.server;
 
 import util.Util;
 
-public class domainRecord {
+public class DomainRecord {
 	private String domain;
 	private short port;
 	private long ip;
 	
-	public domainRecord(String domain,short port,long ip) {
+	public DomainRecord(String domain,short port,long ip) {
 		this.domain = domain;
 		this.port = port;
 		this.ip = ip;
 	}
 	
-	public domainRecord(String record) {
+	public DomainRecord(String record) {
 		String[] infos = record.split("" + (char)(0));
 		this.domain = infos[0];
 		this.port = Short.parseShort(infos[1]);

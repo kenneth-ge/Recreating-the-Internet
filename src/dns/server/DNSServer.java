@@ -21,7 +21,7 @@ public class DNSServer extends Thread {
     private byte[] buf = new byte[256];
     private int serverPort = 5000;
     
-    private HashMap<String,domainRecord> domains;
+    private HashMap<String,DomainRecord> domains;
 
     public DNSServer() {
         try {
@@ -36,14 +36,14 @@ public class DNSServer extends Thread {
     	Scanner scanner = new Scanner(new File("./data/domains.data"));
     	while(scanner.hasNextLine()) {
     		String data = scanner.nextLine();
-    		domainRecord dr = new domainRecord(data);
+    		DomainRecord dr = new DomainRecord(data);
     		domains.put(dr.getDomain(),dr);
     	}
     }
     
     public void writeData() throws IOException {
     	FileWriter writer = new FileWriter("./data/domains.data");
-    	for(Entry<String, domainRecord> dr : domains.entrySet()) {
+    	for(Entry<String, DomainRecord> dr : domains.entrySet()) {
     		writer.write(dr.toString() + "\n");
     	}
     	writer.close();
@@ -100,7 +100,7 @@ public class DNSServer extends Thread {
     	
     	String name = new String(request, 7, request.length - 7);
     	
-    	domainRecord dr = new domainRecord(name,(short)port,Util.fourBytesToLong(addressBytes));
+    	DomainRecord dr = new DomainRecord(name,(short)port,Util.fourBytesToLong(addressBytes));
     	domains.put(dr.getDomain(),dr);
     }
 }
