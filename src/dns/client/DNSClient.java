@@ -17,17 +17,11 @@ public class DNSClient {
 		DNSClient client = new DNSClient(InetAddress.getByName("localhost"));
 		
 		while(true) {
+			String ip = sc.nextLine();
 			int port = sc.nextInt();
+			String name = sc.nextLine();
 			
-			byte a = (byte) port;
-			byte b = (byte) (port >>> 8);
-			
-			System.out.println(a);
-			System.out.println(b);
-			
-			int x = (b & 0xff << 8) | (a & 0xff);
-			
-			System.out.println(x);
+			client.registerDomain(InetAddress.getByName(ip), port, name);
 		}
 	}
 	
