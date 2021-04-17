@@ -30,7 +30,9 @@ public class TextServer implements Runnable {
 				
 				File f = new File(request);
 				
-				if(f.exists() && f.getAbsolutePath().startsWith(prefix))
+				if(f.exists() && f.getAbsolutePath().startsWith(pathPrefix)) {
+					
+				}
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
