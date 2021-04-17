@@ -23,7 +23,7 @@ public class DNSClient {
 				client.stopServer();
 			}
 			
-			int port = sc.nextInt();
+			int port = Integer.parseInt(sc.nextLine());
 			String name = sc.nextLine();
 			
 			client.registerDomain(InetAddress.getByName(ip), port, name);
