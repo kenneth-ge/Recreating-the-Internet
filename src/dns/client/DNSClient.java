@@ -18,6 +18,11 @@ public class DNSClient {
 		
 		while(true) {
 			String ip = sc.nextLine();
+			
+			if(ip.equals("q")) {
+				client.stopServer();
+			}
+			
 			int port = sc.nextInt();
 			String name = sc.nextLine();
 			
@@ -82,6 +87,10 @@ public class DNSClient {
 		ret.port = Util.bytesToTwoInts(new byte[] {responseData[4], responseData[5]});
 		
 		return ret;
+	}
+	
+	public void stopServer() throws IOException {
+		sendPacket(new byte[] {2});
 	}
 	
 	private void sendPacket(byte[] data) throws IOException {
