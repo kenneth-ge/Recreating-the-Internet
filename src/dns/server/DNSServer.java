@@ -10,6 +10,8 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import util.Util;
+
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.Scanner;
@@ -83,7 +85,7 @@ public class DNSServer extends Thread {
                 continue;
             }else if(requestData[0] == 0) {
             	try {
-					processRegistration(requestData);
+					processRegistration(requestData, packet.getLength());
 				} catch (UnknownHostException e) {
 					System.out.println("Unknown Host Error: " + e.getMessage());
 				}
@@ -97,7 +99,9 @@ public class DNSServer extends Thread {
         socket.close();
     }
     
-    public void processRegistration(byte[] request) throws UnknownHostException {
+    public void processRegistration(byte[] request, int end) throws UnknownHostException {
+    	System.out.println("Request: " + Arrays.toString(request));
+    	
     	//ignore first byte
     	byte operation = request[0];
     	
@@ -105,9 +109,12 @@ public class DNSServer extends Thread {
     	InetAddress addr = InetAddress.getByAddress(addressBytes);
     	int port = Util.bytesToTwoInts(new byte[] {request[5], request[6]});
     	
-    	String name = new String(request, 7, request.length - 7);
+    	System.out.println(port);
+    	
+    	String name = new String(request, 7, end - 7);
     	
     	DomainRecord dr = new DomainRecord(name,(short)port,Util.fourBytesToLong(addressBytes));
+    	System.out.println("Registered domain: " + dr.toReadableString());
     	domains.put(dr.getDomain(),dr);
     }
 }

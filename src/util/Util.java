@@ -1,5 +1,7 @@
 package util;
 
+import java.util.Arrays;
+
 public class Util {
 
 	//turns the port number into two bytes. Note that this truncates the int. 
@@ -11,10 +13,11 @@ public class Util {
 	}
 	
 	public static int bytesToTwoInts(byte[] bytes) {
+		System.out.println("Bytes to two ints: " + Arrays.toString(bytes));
 		int a = bytes[0];
 		int b = bytes[1];
 		
-		int x = (b & 0xff << 8) | (a & 0xff);
+		int x = ((b & 0xff) << 8) | (a & 0xff);
 		
 		return x;
 	}
@@ -25,7 +28,7 @@ public class Util {
 	}
 	
 	public static long fourBytesToLong(byte[] ip) {
-		long res = ((long)(ip[0] + 128) << 24) + ((long)(ip[1] + 128) << 16) + ((long)(ip[2] + 128) << 8) + ((long)(ip[3] + 128));
+		long res = ((long)(ip[0] & 0xff) << 24) + ((long)(ip[1] & 0xff) << 16) + ((long)(ip[2] & 0xff) << 8) + ((long)(ip[3] & 0xff));
 		return res;
 	}
 	
