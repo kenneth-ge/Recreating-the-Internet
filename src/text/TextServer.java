@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.net.SocketException;
 
 public class TextServer implements Runnable {
@@ -20,11 +22,11 @@ public class TextServer implements Runnable {
 			
 			byte[] data = new byte[1024];
 			
-			DatagramSocket socket = new DatagramSocket(3000);
-			DatagramPacket packet = new DatagramPacket(data, 1024);
+			ServerSocket socket = new ServerSocket(3000);
 			
 			while(true) {
-				socket.receive(packet);
+				Socket s = socket.accept();
+				/*
 				
 				String request = new String(data);
 				
@@ -32,7 +34,7 @@ public class TextServer implements Runnable {
 				
 				if(f.exists() && f.getAbsolutePath().startsWith(pathPrefix)) {
 					
-				}
+				}*/
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
