@@ -4,6 +4,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
+import java.util.Arrays;
 import java.util.Scanner;
 
 import util.Util;
@@ -65,6 +66,28 @@ public class DNSClient {
 		}
 		
 		this.sendPacket(total);
+	}
+	
+	public Socket request(String domain) throws IOException {
+		byte[] text = domain.getBytes();
+		byte[] data = new byte[text.length + 1];
+		System.arraycopy(text, 0, data, 1, text.length);
+		data[0] = 1;
+		
+		DatagramPacket request = new DatagramPacket(data, data.length);
+		request.setAddress(serverIP);
+		request.setPort(5000);
+		socket.send(request);
+		
+		byte[] responseData = new byte[6];
+		DatagramPacket response = new DatagramPacket(responseData, 6);
+		socket.receive(response);
+		
+		Socket ret = new Socket();
+		ret.address = InetAddress.getByAddress(new byte[] {responseData[0], responseData[1], responseData[2], responseData[3]});
+		ret.port = Util.bytesToTwoInts(new byte[] {responseData[4], responseData[5]});
+		
+		return ret;
 	}
 	
 	private void sendPacket(byte[] data) throws IOException {
