@@ -21,7 +21,7 @@ public class DNSServer extends Thread {
     private byte[] buf = new byte[256];
     private int serverPort = 5000;
     
-    private HashMap<String, DomainRecord> domains;
+    private HashMap<String, DomainRecord> domains = new HashMap<String, DomainRecord>();
 
     public DNSServer() {
         try {
