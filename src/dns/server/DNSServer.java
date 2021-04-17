@@ -73,6 +73,7 @@ public class DNSServer extends Thread {
             if(requestData[0] == 2) {
             	// end
                 running = false;
+                System.out.println("Server stopping.");
                 try {
 					writeData();
 				} catch (IOException e) {
