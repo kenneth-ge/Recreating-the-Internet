@@ -19,4 +19,14 @@ public class Util {
 		return x;
 	}
 	
+	public static String longToStringIPV4(long ip) {
+		String res = ((ip >> 24) & (255)) + "." + ((ip >> 16) & 255) + "." + ((ip >> 8) & 255) + "." + ((ip >> 0) & 255);
+		return res;
+	}
+	
+	public static long fourBytesToLong(byte[] ip) {
+		long res = ((long)(ip[0] + 128) << 24) + ((long)(ip[1] + 128) << 16) + ((long)(ip[2] + 128) << 8) + ((long)(ip[3] + 128));
+		return res;
+	}
+	
 }
