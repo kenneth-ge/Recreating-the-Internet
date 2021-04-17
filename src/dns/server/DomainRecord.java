@@ -37,7 +37,7 @@ public class DomainRecord {
 	
 	@Override
 	public String toString() {
-		String res = domain + ";" + port + ";" + Util.longToStringIPV4(ip);
+		String res = domain + ";" + port + ";" + ip;
 		return res;
 	}
 	
