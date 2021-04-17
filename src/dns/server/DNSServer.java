@@ -1,5 +1,8 @@
 package dns.server;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -8,6 +11,8 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 import util.Util;
 import java.util.HashMap;
+import java.util.Map.Entry;
+import java.util.Scanner;
 
 public class DNSServer extends Thread {
 
@@ -16,7 +21,7 @@ public class DNSServer extends Thread {
     private byte[] buf = new byte[256];
     private int serverPort = 5000;
     
-    private HashMap<String,domainRecord> data;
+    private HashMap<String,domainRecord> domains;
 
     public DNSServer() {
         try {
@@ -24,6 +29,24 @@ public class DNSServer extends Thread {
 		}catch(SocketException e) {
 			System.out.println("Socket error: " + e.getMessage());
 		}
+    }
+    
+    public void readData() throws FileNotFoundException {
+    	domains.clear();
+    	Scanner scanner = new Scanner(new File("./data/domains.data"));
+    	while(scanner.hasNextLine()) {
+    		String data = scanner.nextLine();
+    		domainRecord dr = new domainRecord(data);
+    		domains.put(dr.getDomain(),dr);
+    	}
+    }
+    
+    public void writeData() throws IOException {
+    	FileWriter writer = new FileWriter("./data/domains.data");
+    	for(Entry<String, domainRecord> dr : domains.entrySet()) {
+    		writer.write(dr.toString() + "\n");
+    	}
+    	writer.close();
     }
 
     public void run() {
@@ -44,6 +67,11 @@ public class DNSServer extends Thread {
             
             if(received.equals("end")) {
                 running = false;
+                try {
+					writeData();
+				} catch (IOException e) {
+					System.out.println("I/O error: " + e.getMessage());
+				}
                 continue;
             }
             
@@ -66,6 +94,7 @@ public class DNSServer extends Thread {
     	
     	String name = new String(request, 7, request.length - 7);
     	
-    	//turn this into a java class
+    	domainRecord dr = new domainRecord(name,(short)port,Util.fourBytesToLong(addressBytes));
+    	domains.put(dr.getDomain(),dr);
     }
 }
