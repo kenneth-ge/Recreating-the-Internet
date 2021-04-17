@@ -51,6 +51,12 @@ public class DNSServer extends Thread {
 
     public void run() {
         running = true;
+        domains.clear();
+        try {
+			readData();
+		} catch (FileNotFoundException e1) {
+			System.out.println("File Not Found error: " + e.getMessage());
+		}
         System.out.println("Server is running on port: " + serverPort);
         while(running) {
             DatagramPacket packet = new DatagramPacket(buf, buf.length);
