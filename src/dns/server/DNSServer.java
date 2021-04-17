@@ -37,6 +37,7 @@ public class DNSServer extends Thread {
     	while(scanner.hasNextLine()) {
     		String data = scanner.nextLine();
     		DomainRecord dr = new DomainRecord(data);
+    		System.out.println(dr.toReadableString());
     		domains.put(dr.getDomain(),dr);
     	}
     }

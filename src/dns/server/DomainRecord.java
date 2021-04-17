@@ -1,5 +1,7 @@
 package dns.server;
 
+import java.net.InetAddress;
+
 import util.Util;
 
 public class DomainRecord {
@@ -37,6 +39,10 @@ public class DomainRecord {
 	public String toString() {
 		String res = domain + (char)(0) + port + (char)(0) + Util.longToStringIPV4(ip);
 		return res;
+	}
+	
+	public String toReadableString() {
+		return Util.longToStringIPV4(ip) + ":" + port + ":" + domain;
 	}
 	
 }
