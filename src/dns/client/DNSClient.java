@@ -17,16 +17,29 @@ public class DNSClient {
 		DNSClient client = new DNSClient(InetAddress.getByName("localhost"));
 		
 		while(true) {
-			String ip = sc.nextLine();
+			String req = sc.nextLine();
 			
-			if(ip.equals("q")) {
+			switch(req) {
+			case "q":
 				client.stopServer();
+				break;
+			case "r":
+				String ip = sc.nextLine();
+				int port = Integer.parseInt(sc.nextLine());
+				String name = sc.nextLine();
+				
+				client.registerDomain(InetAddress.getByName(ip), port, name);
+				break;
+			case "R":
+				name = sc.nextLine();
+				
+				var socket = client.request(name);
+				
+				System.out.println(socket.address + " " + socket.port);
+				
+				break;
 			}
 			
-			int port = Integer.parseInt(sc.nextLine());
-			String name = sc.nextLine();
-			
-			client.registerDomain(InetAddress.getByName(ip), port, name);
 		}
 	}
 	
@@ -78,13 +91,14 @@ public class DNSClient {
 		request.setPort(5000);
 		socket.send(request);
 		
-		byte[] responseData = new byte[6];
-		DatagramPacket response = new DatagramPacket(responseData, 6);
+		byte[] responseData = new byte[7];
+		
+		DatagramPacket response = new DatagramPacket(responseData, 7);
 		socket.receive(response);
 		
 		Socket ret = new Socket();
-		ret.address = InetAddress.getByAddress(new byte[] {responseData[0], responseData[1], responseData[2], responseData[3]});
-		ret.port = Util.bytesToTwoInts(new byte[] {responseData[4], responseData[5]});
+		ret.address = InetAddress.getByAddress(new byte[] {responseData[1], responseData[2], responseData[3], responseData[4]});
+		ret.port = Util.bytesToTwoInts(new byte[] {responseData[5], responseData[6]});
 		
 		return ret;
 	}

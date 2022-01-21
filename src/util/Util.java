@@ -32,4 +32,14 @@ public class Util {
 		return res;
 	}
 	
+	public static byte[] longToFourBytes(long ip) {
+		byte[] res = {
+				(byte) ((ip >> 24) & (255)),
+				(byte) ((ip >> 16) & 255),
+				(byte) ((ip >> 8) & 255), 
+				(byte) ((ip >> 0) & 255)
+		};
+		return res;
+	}
+	
 }

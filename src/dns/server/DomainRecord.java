@@ -18,9 +18,9 @@ public class DomainRecord {
 	
 	public DomainRecord(String record) {
 		String[] infos = record.split(";");
-		this.domain = infos[0];
+		this.ip = Long.parseLong(infos[0]);
 		this.port = Short.parseShort(infos[1]);
-		this.ip = Long.parseLong(infos[2]);
+		this.domain = infos[2];
 	}
 	
 	public String getDomain() {

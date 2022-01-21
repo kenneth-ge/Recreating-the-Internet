@@ -6,7 +6,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import util.Util;
@@ -18,12 +17,15 @@ import java.util.Scanner;
 
 public class DNSServer extends Thread {
 
-    private DatagramSocket socket;
-    private boolean running;
-    private byte[] buf = new byte[256];
-    private int serverPort = 5000;
+    DatagramSocket socket;
+    boolean running;
+    byte[] buf = new byte[256];
+    int serverPort = 5000;
     
-    private HashMap<String, DomainRecord> domains = new HashMap<String, DomainRecord>();
+    DatagramPacket responsePacket;
+    byte[] response = new byte[256];
+    
+    HashMap<String, DomainRecord> domains = new HashMap<String, DomainRecord>();
 
     public DNSServer() {
         try {
@@ -59,8 +61,12 @@ public class DNSServer extends Thread {
 			readData();
 		} catch (FileNotFoundException e1) {
 			System.out.println("File Not Found error: " + e1.getMessage());
-		}
+		}  
+        
         System.out.println("Server is running on port: " + serverPort);
+        
+        responsePacket = new DatagramPacket(response, response.length);
+        
         while(running) {
             DatagramPacket packet = new DatagramPacket(buf, buf.length);
             try {
@@ -70,25 +76,39 @@ public class DNSServer extends Thread {
 			}
             byte[] requestData = packet.getData();
             
-            if(requestData[0] == 2) {
-            	// end
-                running = false;
+            responsePacket.setAddress(packet.getAddress());
+            responsePacket.setPort(packet.getPort());
+            
+            switch(requestData[0]) {
+            case 0:
+            	try {
+					processRegistration(requestData, packet.getLength());
+					response[0] = 0;
+				} catch (UnknownHostException e) {
+					System.out.println("Unknown Host Error: " + e.getMessage());
+					response[0] = 1;
+				}
+            	responsePacket.setLength(1);
+            	break;
+            case 1:
+            	processResponse(requestData, packet.getLength());
+            	break;
+            case 2:
+            	running = false;
                 System.out.println("Server stopping.");
                 try {
 					writeData();
+					response[0] = 0;
 				} catch (IOException e) {
 					System.out.println("I/O error: " + e.getMessage());
+					response[0] = 1;
 				}
-                continue;
-            }else if(requestData[0] == 0) {
-            	try {
-					processRegistration(requestData, packet.getLength());
-				} catch (UnknownHostException e) {
-					System.out.println("Unknown Host Error: " + e.getMessage());
-				}
+                responsePacket.setLength(1);
+            	break;
             }
+            
             try {
-				socket.send(packet);
+				socket.send(responsePacket);
 			}catch(IOException e) {
 				System.out.println("I/O error: " + e.getMessage());
 			}
@@ -96,14 +116,44 @@ public class DNSServer extends Thread {
         socket.close();
     }
     
+    public void processResponse(byte[] request, int end) {
+    	//TODO: I wonder if there's a way to speed up this program by bypassing this conversion and designing
+    	//a custom hashmap that works at the byte level
+    	String name = new String(request, 1, end - 1);
+    	
+    	var dr = domains.get(name);
+    	
+    	if(dr == null) {
+    		response[0] = 2;
+    		responsePacket.setLength(1);
+    		return;
+    	}
+    	
+    	response[0] = 0;
+    	
+    	byte[] ip = Util.longToFourBytes(dr.getIp());
+    	
+    	response[1] = ip[0];
+    	response[2] = ip[1];
+    	response[3] = ip[2];
+    	response[4] = ip[3];
+    	
+    	byte[] port = Util.intToTwoBytes(dr.getPort());
+    	
+    	response[5] = port[0];
+    	response[6] = port[1];
+    	
+    	responsePacket.setLength(7);
+    }
+    
     public void processRegistration(byte[] request, int end) throws UnknownHostException {
     	System.out.println("Request: " + Arrays.toString(request));
     	
     	//ignore first byte
-    	byte operation = request[0];
+    	//byte operation = request[0];
     	
     	byte[] addressBytes = {request[1], request[2], request[3], request[4]};
-    	InetAddress addr = InetAddress.getByAddress(addressBytes);
+    	//InetAddress addr = InetAddress.getByAddress(addressBytes);
     	int port = Util.bytesToTwoInts(new byte[] {request[5], request[6]});
     	
     	System.out.println(port);
