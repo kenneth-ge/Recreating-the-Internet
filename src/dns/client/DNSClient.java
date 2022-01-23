@@ -24,11 +24,12 @@ public class DNSClient {
 				client.stopServer();
 				break;
 			case "r":
+				byte type = Byte.parseByte(sc.nextLine());
 				String ip = sc.nextLine();
 				int port = Integer.parseInt(sc.nextLine());
 				String name = sc.nextLine();
 				
-				client.registerDomain(InetAddress.getByName(ip), port, name);
+				client.registerDomain(type, InetAddress.getByName(ip), port, name);
 				break;
 			case "R":
 				name = sc.nextLine();
@@ -52,7 +53,7 @@ public class DNSClient {
 		socket = new DatagramSocket();
 	}
 	
-	public void registerDomain(InetAddress ip, int port, String name) throws IOException {
+	public void registerDomain(byte type, InetAddress ip, int port, String name) throws IOException {
 		if(name.length() > 255) {
 			throw new RuntimeException("Domain name too long");
 		}
@@ -62,24 +63,27 @@ public class DNSClient {
 		byte[] portBytes = Util.intToTwoBytes(port);
 		byte[] nameBytes = name.getBytes();
 		
-		byte[] total = new byte[1 + 4 + 2 + nameBytes.length];
+		byte[] total = new byte[1 + 1 + 4 + 2 + nameBytes.length];
 		
 		total[0] = operation;
 		
-		for(int i = 1; i <= 4; i++) {
+		total[1] = type;
+		
+		for(int i = 2; i <= 5; i++) {
 			total[i] = address[i - 1];
 		}
 		
-		total[5] = portBytes[0];
-		total[6] = portBytes[1];
+		total[6] = portBytes[0];
+		total[7] = portBytes[1];
 		
 		for(int i = 0; i < nameBytes.length; i++) {
-			total[i + 7] = nameBytes[i];
+			total[i + 8] = nameBytes[i];
 		}
 		
 		this.sendPacket(total);
 	}
 	
+	//TODO: Fix request function
 	public Socket request(String domain) throws IOException {
 		byte[] text = domain.getBytes();
 		byte[] data = new byte[text.length + 1];
