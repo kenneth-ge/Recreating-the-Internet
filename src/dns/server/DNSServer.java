@@ -10,9 +10,9 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 import util.Util;
 
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map.Entry;
+import java.util.List;
 import java.util.Scanner;
 
 public class DNSServer extends Thread {
@@ -25,7 +25,8 @@ public class DNSServer extends Thread {
     DatagramPacket responsePacket;
     byte[] response = new byte[256];
     
-    HashMap<String, DomainRecord> domains = new HashMap<String, DomainRecord>();
+    DomainTree domains = new DomainTree();
+    List<DomainRecord> records = new ArrayList<>();
 
     public DNSServer() {
         try {
@@ -42,13 +43,13 @@ public class DNSServer extends Thread {
     		String data = scanner.nextLine();
     		DomainRecord dr = new DomainRecord(data);
     		System.out.println(dr.toReadableString());
-    		domains.put(dr.getDomain(),dr);
+    		domains.add(dr);
     	}
     }
     
     public void writeData() throws IOException {
     	FileWriter writer = new FileWriter("./data/domains.data");
-    	for(Entry<String, DomainRecord> dr : domains.entrySet()) {
+    	for(var dr : records) {
     		writer.write(dr.toString() + "\n");
     	}
     	writer.close();
@@ -82,8 +83,8 @@ public class DNSServer extends Thread {
             switch(requestData[0]) {
             case 0:
             	try {
-					processRegistration(requestData, packet.getLength());
-					response[0] = 0;
+					byte code = processRegistration(requestData, packet.getLength());
+					response[0] = code;
 				} catch (UnknownHostException e) {
 					System.out.println("Unknown Host Error: " + e.getMessage());
 					response[0] = 1;
@@ -121,7 +122,7 @@ public class DNSServer extends Thread {
     	//a custom hashmap that works at the byte level
     	String name = new String(request, 1, end - 1);
     	
-    	var dr = domains.get(name);
+    	var dr = domains.get(name.split("."));
     	
     	if(dr == null) {
     		response[0] = 2;
@@ -146,23 +147,33 @@ public class DNSServer extends Thread {
     	responsePacket.setLength(7);
     }
     
-    public void processRegistration(byte[] request, int end) throws UnknownHostException {
+    /* Returns status code */
+    public byte processRegistration(byte[] request, int end) throws UnknownHostException {
     	System.out.println("Request: " + Arrays.toString(request));
     	
     	//ignore first byte
     	//byte operation = request[0];
     	
-    	byte[] addressBytes = {request[1], request[2], request[3], request[4]};
+    	byte type = request[1];
+    	
+    	byte[] addressBytes = {request[2], request[3], request[4], request[5]};
     	//InetAddress addr = InetAddress.getByAddress(addressBytes);
-    	int port = Util.bytesToTwoInts(new byte[] {request[5], request[6]});
+    	int port = Util.bytesToTwoInts(new byte[] {request[6], request[7]});
     	
     	System.out.println(port);
     	System.out.println("packet length: " + end);
     	
-    	String name = new String(request, 7, end - 7);
+    	String[] name = new String(request, 7, end - 7).split(".");
     	
-    	DomainRecord dr = new DomainRecord(name,(short)port,Util.fourBytesToLong(addressBytes));
+    	DomainRecord dr = new DomainRecord(type, name,(short)port,Util.fourBytesToLong(addressBytes));
     	System.out.println("Registered domain: " + dr.toReadableString());
-    	domains.put(dr.getDomain(),dr);
+    	boolean successful = domains.add(dr);
+    	
+    	if(successful) {
+    		records.add(dr);
+    		return 0;
+    	}else{
+    		return 2;
+    	}
     }
 }

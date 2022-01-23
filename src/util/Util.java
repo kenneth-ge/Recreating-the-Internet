@@ -42,4 +42,8 @@ public class Util {
 		return res;
 	}
 	
+	public static String[] parseDomain(String s) {
+		return s.split(".");
+	}
+	
 }
