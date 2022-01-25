@@ -122,7 +122,7 @@ public class DNSServer extends Thread {
     	//a custom hashmap that works at the byte level
     	String name = new String(request, 1, end - 1);
     	
-    	var dr = domains.get(name.split("."));
+    	var dr = domains.get(Util.parseDomain(name));
     	
     	if(dr == null) {
     		response[0] = 2;
@@ -160,10 +160,15 @@ public class DNSServer extends Thread {
     	//InetAddress addr = InetAddress.getByAddress(addressBytes);
     	int port = Util.bytesToTwoInts(new byte[] {request[6], request[7]});
     	
+    	String domainString = new String(request, 8, end - 8);
+    	
     	System.out.println(port);
     	System.out.println("packet length: " + end);
+    	System.out.println("domain string: " + domainString);
     	
-    	String[] name = new String(request, 7, end - 7).split(".");
+    	String[] name = Util.parseDomain(domainString);
+    	
+    	System.out.println(Arrays.toString(name));
     	
     	DomainRecord dr = new DomainRecord(type, name,(short)port,Util.fourBytesToLong(addressBytes));
     	System.out.println("Registered domain: " + dr.toReadableString());

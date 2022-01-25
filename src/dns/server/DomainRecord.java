@@ -1,5 +1,7 @@
 package dns.server;
 
+import java.util.Arrays;
+
 import util.Util;
 
 public class DomainRecord {
@@ -18,9 +20,10 @@ public class DomainRecord {
 	
 	public DomainRecord(String record) {
 		String[] infos = record.split(";");
-		this.ip = Long.parseLong(infos[0]);
+		System.out.println(infos[0]);
+		this.domain = Util.parseDomain(infos[0]);
 		this.port = Short.parseShort(infos[1]);
-		this.domain = Util.parseDomain(infos[2]);
+		this.ip = Long.parseLong(infos[2]);
 		this.type = Byte.parseByte(infos[3]);
 	}
 	
@@ -38,12 +41,12 @@ public class DomainRecord {
 	
 	@Override
 	public String toString() {
-		String res = domain + ";" + port + ";" + ip + ";" + type;
+		String res = Util.toDomainString(domain) + ";" + port + ";" + ip + ";" + type;
 		return res;
 	}
 	
 	public String toReadableString() {
-		return type + ":" + Util.longToStringIPV4(ip) + ":" + port + ":" + domain;
+		return type + ":" + Util.longToStringIPV4(ip) + ":" + port + ":" + Util.toDomainString(domain);
 	}
 	
 }

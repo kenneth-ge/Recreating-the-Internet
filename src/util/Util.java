@@ -43,7 +43,18 @@ public class Util {
 	}
 	
 	public static String[] parseDomain(String s) {
-		return s.split(".");
+		return s.split("\\.");
+	}
+
+	public static String toDomainString(String[] domain) {
+		StringBuffer sb = new StringBuffer();
+		
+		for(String s: domain) {
+			sb.append(s);
+			sb.append('.');
+		}
+		
+		return sb.toString();
 	}
 	
 }

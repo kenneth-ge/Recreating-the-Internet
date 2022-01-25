@@ -22,7 +22,7 @@ public class DNSClient {
 			switch(req) {
 			case "q":
 				client.stopServer();
-				break;
+				return;
 			case "r":
 				byte type = Byte.parseByte(sc.nextLine());
 				String ip = sc.nextLine();
@@ -36,7 +36,7 @@ public class DNSClient {
 				
 				var socket = client.request(name);
 				
-				System.out.println(socket.address + " " + socket.port);
+				System.out.println(socket.type + " " + socket.address + " " + socket.port);
 				
 				break;
 			}
@@ -70,7 +70,7 @@ public class DNSClient {
 		total[1] = type;
 		
 		for(int i = 2; i <= 5; i++) {
-			total[i] = address[i - 1];
+			total[i] = address[i - 2];
 		}
 		
 		total[6] = portBytes[0];
@@ -101,6 +101,7 @@ public class DNSClient {
 		socket.receive(response);
 		
 		Socket ret = new Socket();
+		ret.type = responseData[0];
 		ret.address = InetAddress.getByAddress(new byte[] {responseData[1], responseData[2], responseData[3], responseData[4]});
 		ret.port = Util.bytesToTwoInts(new byte[] {responseData[5], responseData[6]});
 		
